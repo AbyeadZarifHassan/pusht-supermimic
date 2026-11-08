@@ -1,0 +1,7 @@
+torch>=2.2
+numpy
+pymunk>=6.6
+shapely>=2.0
+pillow
+matplotlib
+pytest
