@@ -21,6 +21,8 @@ def main():
     p.add_argument("--episodes", type=int, default=100)
     p.add_argument("--device", default="cpu")
     p.add_argument("--ckpt", default="checkpoint_best.pt", help="checkpoint file inside the run folder")
+    p.add_argument("--seed", type=int, default=12345,
+                   help="seed of the test episodes; 12345 = the same episodes used during training evaluations")
     a = p.parse_args()
     args = json.load(open(os.path.join(a.run, "args.json")))
     ckpt = torch.load(os.path.join(a.run, a.ckpt if os.path.exists(os.path.join(a.run, a.ckpt)) else "checkpoint.pt"),
@@ -35,7 +37,7 @@ def main():
         fn = lambda s: agent.act(s, deterministic=True)
     env_cfg = EnvConfig(reward=args["reward"], success_threshold=args["success_threshold"], damping=args["damping"])
     for name, stage in [("full Push-T reset", None), ("final curriculum stage", env_cfg.curriculum_stages)]:
-        res = evaluate(fn, env_cfg, a.episodes, stage=stage,
+        res = evaluate(fn, env_cfg, a.episodes, seed=a.seed, stage=stage,
                        gif_path=os.path.join(a.run, f"final_{'full' if stage is None else 'curr'}.gif"))
         print(f"{name:25s} success={res['success_rate'] * 100:.1f}%  length={res['episode_length']:.1f} +- {res['episode_length_std']:.1f}")
 

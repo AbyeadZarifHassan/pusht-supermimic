@@ -16,7 +16,7 @@ task whose natural reward is **sparse** (1 only when the T covers 95% of the goa
 <p align="center"><img src="docs/best_model.gif" width="900"><br>
 <em>Best SuperMimic policy (H = 16, 1.7M steps): blue = pusher, grey = T-block, green = goal.</em></p>
 
-**Headline result:** the best SuperMimic checkpoint solves **87%** of 100 unseen episodes from the
+**Headline result:** the best SuperMimic checkpoint solves **87%** of 100 fresh test episodes (new seed, not used for checkpoint selection) from the
 original Push-T reset distribution (mean 100 steps) and **92%** at the final curriculum range.
 PPO with the same observation and action space stays at 0%. Pure sparse reward fails for both
 methods. See [Results](#results).

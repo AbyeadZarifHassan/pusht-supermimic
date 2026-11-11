@@ -14,7 +14,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+% Calibri style font. Carlito is metrically identical to Calibri and ships with TeX Live / Overleaf.
+\IfFileExists{carlito.sty}{\usepackage[sfdefault,lf]{carlito}\renewcommand{\familydefault}{\sfdefault}}{\IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}}
 \usepackage{microtype}
 \usepackage[a4paper,left=2.4cm,right=2.4cm,top=2.6cm,bottom=2.6cm,headheight=15pt]{geometry}
 \usepackage{graphicx}
@@ -37,14 +38,23 @@
 \usepackage{hyperref}
 
 % ---------------------------------------------------------------------
-% Colours: ink, greys and one quiet accent
+% Colour palette
 % ---------------------------------------------------------------------
-\definecolor{Ink}{HTML}{1C1C1C}
-\definecolor{Body}{HTML}{262626}
-\definecolor{Muted}{HTML}{6A6A6A}
-\definecolor{Rule}{HTML}{B5B5B5}
-\definecolor{Paper}{HTML}{F5F5F3}
-\definecolor{Accent}{HTML}{3B3F45}
+\definecolor{Navy}{HTML}{183247}
+\definecolor{Blue}{HTML}{246A9B}
+\definecolor{Teal}{HTML}{187F83}
+\definecolor{Body}{HTML}{293440}
+\definecolor{Muted}{HTML}{647181}
+\definecolor{PaleBlue}{HTML}{EDF4FA}
+\definecolor{PaleTeal}{HTML}{EDF7F5}
+\definecolor{PaleAmber}{HTML}{FFF7EB}
+\definecolor{Grid}{HTML}{9CADBD}
+\definecolor{Amber}{HTML}{B77A24}
+% names used further down
+\colorlet{Ink}{Navy}
+\colorlet{Rule}{Grid}
+\colorlet{Paper}{PaleBlue}
+\colorlet{Accent}{Blue}
 
 \color{Body}
 \setlength{\parindent}{0pt}
@@ -59,7 +69,7 @@
 \setlist[enumerate]{leftmargin=1.7em,itemsep=4pt,topsep=4pt,parsep=0pt}
 
 \hypersetup{
-  colorlinks=true, linkcolor=Ink, urlcolor=Accent, citecolor=Ink,
+  colorlinks=true, linkcolor=Navy, urlcolor=Blue, citecolor=Teal,
   pdftitle={Learning to Push a T Block Through a Learned World Model},
   pdfauthor={Abyead Zarif Hassan},
   pdfsubject={Research implementation report}
@@ -70,8 +80,8 @@
 % Headings
 % ---------------------------------------------------------------------
 \titleformat{\section}{\Large\bfseries\color{Ink}}{\thesection}{0.7em}{}[\vspace{2pt}{\color{Rule}\titlerule}]
-\titleformat{\subsection}{\large\bfseries\color{Ink}}{\thesubsection}{0.6em}{}
-\titleformat{\subsubsection}{\normalsize\bfseries\itshape\color{Ink}}{\thesubsubsection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{Blue}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{Teal}}{\thesubsubsection}{0.6em}{}
 \titlespacing*{\section}{0pt}{20pt}{9pt}
 \titlespacing*{\subsection}{0pt}{13pt}{5pt}
 \titlespacing*{\subsubsection}{0pt}{10pt}{4pt}
@@ -84,7 +94,7 @@
 \fancyhead[L]{\small\color{Muted}Learning to push a T block through a learned world model}
 \fancyhead[R]{\small\color{Muted}Abyead Zarif Hassan}
 \fancyfoot[L]{\small\color{Muted}Research implementation report}
-\fancyfoot[R]{\small\color{Ink}\thepage}
+\fancyfoot[R]{\small\color{Navy}\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\headrule}{{\color{Rule}\hrule width\headwidth height\headrulewidth}}
 \renewcommand{\footrulewidth}{0pt}
@@ -105,15 +115,13 @@
 % Boxes: a thin grey rule on the left, no colour fill beyond paper grey
 % ---------------------------------------------------------------------
 \tcbset{
-  reportbox/.style={enhanced,breakable,frame hidden,boxrule=0pt,sharp corners,
-    colback=Paper,borderline west={1.6pt}{0pt}{Accent},
-    left=11pt,right=10pt,top=7pt,bottom=7pt,before skip=9pt,after skip=9pt,
-    fonttitle=\bfseries\small,coltitle=Ink,colbacktitle=Paper,titlerule=0pt,
-    attach title to upper={\par\smallskip}}
+  reportbox/.style={enhanced,breakable,boxrule=0.5pt,arc=2pt,
+    left=10pt,right=10pt,top=8pt,bottom=8pt,before skip=9pt,after skip=9pt,
+    fonttitle=\bfseries,coltitle=Navy,titlerule=0pt}
 }
-\newtcolorbox{summarybox}[1][Main observation]{reportbox,title={#1}}
-\newtcolorbox{notebox}[1][Interpretation]{reportbox,title={#1}}
-\newtcolorbox{limitbox}[1][Limitation]{reportbox,borderline west={1.6pt}{0pt}{Muted},title={#1}}
+\newtcolorbox{summarybox}[1][Main observation]{reportbox,colback=PaleBlue,colframe=Blue!45,colbacktitle=PaleBlue,title={#1}}
+\newtcolorbox{notebox}[1][Interpretation]{reportbox,colback=PaleTeal,colframe=Teal!45,colbacktitle=PaleTeal,title={#1}}
+\newtcolorbox{limitbox}[1][Limitation]{reportbox,colback=PaleAmber,colframe=Amber!50,colbacktitle=PaleAmber,title={#1}}
 
 % ---------------------------------------------------------------------
 % Code
@@ -155,9 +163,9 @@
 \setlength{\parskip}{4pt}
 \setlength{\parindent}{0pt}
 
-{\color{Ink}\hrule height 1.2pt}
+{\color{Blue}\hrule height 1.3pt}
 \vspace{0.18cm}
-{\small\color{Muted}\textsc{Research Implementation Report}\hfill\textsc{University of Dhaka}\par}
+{\small\color{Teal}\textbf{RESEARCH IMPLEMENTATION REPORT}\hfill\color{Muted}\textsc{University of Dhaka}\par}
 \vspace{1.5cm}
 
 {\fontsize{26}{32}\selectfont\bfseries\color{Ink}
@@ -175,13 +183,13 @@ compared with PPO on the Push-T manipulation task\par}
 \vspace{0.55cm}
 
 \begin{minipage}[t]{0.47\textwidth}
-  {\small\color{Muted}\textsc{Author}\par}
+  {\small\color{Teal}\textsc{Author}\par}
   \vspace{2pt}
   {\large\bfseries\color{Ink}Abyead Zarif Hassan\par}
   {\normalsize BSc in Robotics and Mechatronics Engineering\\University of Dhaka\par}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.47\textwidth}
-  {\small\color{Muted}\textsc{Prepared for}\par}
+  {\small\color{Teal}\textsc{Prepared for}\par}
   \vspace{2pt}
   {\large\bfseries\color{Ink}Dr Chengzhou Tang\par}
   {\normalsize Spatial Intelligent System Lab\\University of Manitoba\par}
@@ -189,7 +197,7 @@ compared with PPO on the Push-T manipulation task\par}
 
 \vspace{0.9cm}
 
-\begin{tcolorbox}[reportbox,breakable=false,title={Report overview},fontupper=\small,before skip=0pt,after skip=0pt]
+\begin{tcolorbox}[reportbox,breakable=false,colback=PaleBlue,colframe=Blue!45,colbacktitle=PaleBlue,title={Report overview},fontupper=\small,before skip=0pt,after skip=0pt]
 Dr Tang's case study on SuperMimic ends with an open question: does training a policy through a
 learned differentiable world model still work when the reward is sparse and the task is
 manipulation without a reference trajectory? I tested this on Push-T. I built the simulator, a
@@ -198,7 +206,7 @@ design.
 
 \smallskip
 With a shaped reward and a 16 step imagination horizon the SuperMimic style learner solved
-\textbf{87\% of 100 unseen episodes} from the original Push-T start distribution. PPO stayed at 0\%
+\textbf{87\% of 100 test episodes} from the original Push-T start distribution. PPO stayed at 0\%
 with the same data budget. With a purely sparse reward both methods failed completely.
 
 \smallskip
@@ -316,20 +324,29 @@ Linux and on Windows.
 \small
 \caption{Environment settings.}
 \label{tab:env}
-\begin{tabularx}{\textwidth}{p{4.2cm}L}
-\toprule
+\begin{tabularx}{\textwidth}{|p{4.2cm}|L|}
+\hline
+\rowcolor{PaleBlue}
 \thd{Setting} & \thd{Value} \\
-\midrule
+\hline
 Table and objects & $512\times512$ px table, pusher radius 15 px, T made of a $120\times30$ px bar and a $30\times90$ px stem \\
+\hline
 Goal pose & $(256, 256)$ px and $\pi/4$ rad, fixed \\
+\hline
 Physics and control rate & 100 Hz physics, 10 Hz control \\
+\hline
 Action & Pusher velocity in the goal frame, $a \in [-1,1]^2$, scaled to 200 px/s \\
+\hline
 Observation & Pusher and goal position in the block frame, $\sin$ and $\cos$ of the goal angle in the block frame, block velocity in the block frame (9 numbers) \\
+\hline
 Success & At least 95\% of the goal area covered \\
+\hline
 Episode limit & 300 control steps \\
+\hline
 Table friction & The block loses 99\% of its velocity per second (see Section~\ref{sec:friction}) \\
+\hline
 Reverse curriculum & Stage $m$ starts the block within $256 \pm (30 + 100\,m/10)$ px; the stage advances after 50 successes \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -371,8 +388,8 @@ Figure~\ref{fig:loop} shows the loop. The code is in \texttt{pusht\_rl/world\_mo
 \centering
 \begin{tikzpicture}[
   node distance=0.55cm and 0.9cm,
-  box/.style={draw=Accent,line width=0.5pt,fill=Paper,align=center,minimum height=1.15cm,text width=3.1cm,font=\small},
-  arr/.style={-{Stealth[length=2.2mm]},draw=Accent,line width=0.6pt},
+  box/.style={draw=Blue,line width=0.6pt,fill=PaleBlue,align=center,minimum height=1.15cm,text width=3.1cm,font=\small},
+  arr/.style={-{Stealth[length=2.2mm]},draw=Teal,line width=0.8pt},
   lab/.style={font=\scriptsize,color=Muted,align=center}]
 \node[box] (sim) {\textbf{Simulator}\\32 parallel tables};
 \node[box,right=of sim] (buf) {\textbf{Replay buffer}\\fixed size, old data replaced};
@@ -433,21 +450,31 @@ SuperMimic and Dreamer~\cite{dreamer}:
 \small
 \caption{Settings of the SuperMimic style learner.}
 \label{tab:sm}
-\begin{tabularx}{\textwidth}{p{5.2cm}L}
-\toprule
+\begin{tabularx}{\textwidth}{|p{5.2cm}|L|}
+\hline
+\rowcolor{PaleBlue}
 \thd{Setting} & \thd{Value} \\
-\midrule
+\hline
 Networks & World model, actor and critic: 3 layers of 256 units with layer normalisation \\
+\hline
 Imagination horizon $H$ & 16 (32 and 8 in the ablations) \\
+\hline
 World model window $k$ & 8 steps \\
+\hline
 Discount $\gamma$ and $\lambda$ & 0.99 and 0.95 \\
+\hline
 Learning rates & World model and critic $3\times10^{-4}$, actor $1\times10^{-4}$ \\
+\hline
 Actor gradient clipping & Norm 0.5 \\
+\hline
 Batch size & 256 windows or start states \\
+\hline
 Updates & 4 world model updates and 4 policy updates per 256 environment steps \\
+\hline
 Exploration & Gaussian noise with standard deviation 0.3 on the actions \\
+\hline
 Replay buffer & 1 million transitions, the first 20{,}000 from random actions \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -496,19 +523,28 @@ learned something once it beats these numbers.
 \caption{Evaluation on the original Push-T reset after 500{,}000 environment steps. Dense reward
 unless stated. ``Successes in training'' counts successful training episodes so far.}
 \label{tab:main}
-\begin{tabularx}{\textwidth}{L>{\centering\arraybackslash}p{1.6cm}>{\centering\arraybackslash}p{1.7cm}>{\centering\arraybackslash}p{2.3cm}>{\centering\arraybackslash}p{1.6cm}}
-\toprule
+\begin{tabularx}{\textwidth}{|L|>{\centering\arraybackslash}p{1.6cm}|>{\centering\arraybackslash}p{1.7cm}|>{\centering\arraybackslash}p{2.3cm}|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{PaleBlue}
 \thd{Method} & \thd{Success} & \thd{Coverage} & \thd{Successes in training} & \thd{Time} \\
-\midrule
+\hline
 Do nothing & 0\% & 0.04 & -- & -- \\
+\hline
 PPO, sparse reward & 0\% & 0.05 & 0 & 5 min \\
+\hline
 PPO, dense reward & 0\% & 0.06 & 0 & 5 min \\
+\hline
 SuperMimic style, sparse reward, $H=16$ & 0\% & 0.05 & 0 & 38 min \\
+\hline
 SuperMimic style, $H=32$ & 0\% & 0.12 & 8 & 62 min \\
+\hline
 SuperMimic style, $H=16$, no critic & 2\% & 0.36 & -- & 28 min \\
+\hline
 SuperMimic style, $H=8$ & 15\% & 0.51 & 34 & 22 min \\
+\hline
+\rowcolor{PaleTeal}
 \textbf{SuperMimic style, $H=16$} & \textbf{15\%} & \textbf{0.55} & \textbf{61} & 35 min \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -537,21 +573,25 @@ I continued the $H=16$ run to two million steps. It took 2 hours and 21 minutes 
 \small
 \caption{Evaluation during the two million step run (seed 0).}
 \label{tab:long}
-\begin{tabularx}{\textwidth}{L*{7}{C}}
-\toprule
+\begin{tabularx}{\textwidth}{|p{2.6cm}|*{7}{C|}}
+\hline
+\rowcolor{PaleBlue}
 \thd{Steps} & \thd{0.5M} & \thd{1.0M} & \thd{1.2M} & \thd{1.5M} & \thd{1.7M} & \thd{1.8M} & \thd{2.0M} \\
-\midrule
+\hline
 Curriculum stage & 1 & 5 & 9 & 10 & 10 & 10 & 10 \\
+\hline
 Success & 15\% & 64\% & 61\% & 85\% & \textbf{87\%} & 19\% & 79\% \\
+\hline
 Coverage & 0.55 & 0.81 & 0.83 & 0.88 & 0.89 & 0.50 & \textbf{0.93} \\
+\hline
 Episode length & 275 & 182 & 170 & 105 & \textbf{100} & 264 & 115 \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
 \reportfigure{figures/long_run.pdf}
 {Evaluation success and coverage over training. The dotted line on the right is the curriculum
-stage of seed 0. A second seed is shown in grey up to the point where a power cut stopped it.}
+stage of seed 0. The second seed was a shorter reproducibility run and is shown up to its last evaluation at 900{,}000 steps.}
 {fig:long}
 
 The curriculum reached its final stage at about 1.2 million steps. After that the policy kept
@@ -562,20 +602,28 @@ million, and recovered each time. Saving the best checkpoint separately turned o
 \subsection{Final evaluation of the best checkpoint}
 \label{sec:best}
 
-The best checkpoint came from 1.7 million steps. I evaluated it again on 100 new episodes.
+The best checkpoint came from 1.7 million steps. I evaluated it again with the evaluation script.
+The start states of the 100 test episodes come from a fixed seed. Training never uses these
+episodes, but they are the same episodes that chose the best checkpoint, so the re-evaluation
+reproduced the 87\% exactly. That confirms the pipeline is deterministic. It also means 87\% is
+somewhat optimistic, because the checkpoint was picked on these episodes. Section~\ref{sec:stats}
+returns to this point.
 
 \begin{table}[htbp]
 \centering
 \small
 \caption{Fresh evaluation of the best checkpoint.}
 \label{tab:best}
-\begin{tabularx}{\textwidth}{LCC}
-\toprule
+\begin{tabularx}{\textwidth}{|L|C|C|}
+\hline
+\rowcolor{PaleBlue}
 \thd{Start distribution} & \thd{Success} & \thd{Episode length (mean $\pm$ sd)} \\
-\midrule
+\hline
+\rowcolor{PaleTeal}
 Original Push-T reset & \textbf{87\%} & $99.8 \pm 83.1$ \\
+\hline
 Final curriculum range & 92\% & $87.2 \pm 70.8$ \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -593,14 +641,17 @@ the repository.}
 \caption{Effect of the imagination horizon at 500{,}000 steps. The gradient norm is measured before
 clipping.}
 \label{tab:horizon}
-\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{1.8cm}CCL}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}p{1.8cm}|C|C|L|}
+\hline
+\rowcolor{PaleBlue}
 \thd{Horizon} & \thd{Success} & \thd{Coverage} & \thd{Actor gradient norm} \\
-\midrule
+\hline
 32 & 0\% (2\% at 200k) & 0.12 & Repeated spikes from 100 to over 3{,}000 \\
+\hline
 16 & 15\% & 0.55 & Mostly below 5, occasional spikes near 15 \\
+\hline
 8 & 15\% & 0.51 & Mostly below 1 \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -671,21 +722,132 @@ effect as a qualitative finding.
 \caption{Two seeds of the same configuration ($H=16$, dense reward): success, coverage and
 curriculum stage.}
 \label{tab:seeds}
-\begin{tabularx}{\textwidth}{p{1.6cm}*{5}{C}}
-\toprule
+\begin{tabularx}{\textwidth}{|p{1.2cm}|*{5}{C|}}
+\hline
+\rowcolor{PaleBlue}
 \thd{Seed} & \thd{300k} & \thd{500k} & \thd{700k} & \thd{800k} & \thd{900k} \\
-\midrule
+\hline
 0 & 1\%, 0.37, 0 & 15\%, 0.55, 1 & 0\%, 0.49, 2 & 14\%, 0.67, 3 & 23\%, 0.58, 4 \\
+\hline
 1 & 3\%, 0.36, 0 & 3\%, 0.43, 1 & 11\%, 0.61, 3 & 2\%, 0.40, 3 & 0\%, 0.26, 4 \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
-A power cut stopped the second seed at about 930{,}000 steps. Both seeds learn. They move through
+I ran the second seed as a shorter reproducibility check with a budget of one million steps rather than two. Its last evaluation is at 900{,}000 steps, so the table stops there. Both seeds learn. They move through
 the curriculum at a similar pace and are far ahead of PPO. Seed 1 is slower and noisier though, so
 the 87\% from seed 0 should be read as one good run and not as the expected outcome.
 
 
+
+% =====================================================================
+\section{Statistical uncertainty}
+\label{sec:stats}
+
+Each evaluation runs 100 episodes and each episode either succeeds or fails. A success rate from
+100 episodes is therefore a binomial estimate, and I can put an interval around it. The training
+script did not save per episode coverage, so the coverage numbers in this report have no interval.
+
+\subsection{Confidence intervals}
+
+I used the Wilson score interval at 95\%. It behaves well near 0\% and 100\%, where the simpler
+normal approximation breaks down.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Success rates with 95\% Wilson intervals. Every row uses $n=100$ episodes.}
+\label{tab:ci}
+\begin{tabularx}{\textwidth}{|L|>{\centering\arraybackslash}p{2.1cm}|>{\centering\arraybackslash}p{2.4cm}|}
+\hline
+\rowcolor{PaleBlue}
+\thd{Run and checkpoint} & \thd{Success} & \thd{95\% interval} \\
+\hline
+PPO, dense reward, 500k & 0/100 & 0.0 to 3.7\% \\
+\hline
+SuperMimic style, $H=32$, 500k & 0/100 & 0.0 to 3.7\% \\
+\hline
+SuperMimic style, $H=16$, no critic, 500k & 2/100 & 0.6 to 7.0\% \\
+\hline
+SuperMimic style, $H=8$, 500k & 15/100 & 9.3 to 23.3\% \\
+\hline
+SuperMimic style, $H=16$, 500k & 15/100 & 9.3 to 23.3\% \\
+\hline
+SuperMimic style, $H=16$, 1.8M (collapse) & 19/100 & 12.5 to 27.8\% \\
+\hline
+SuperMimic style, $H=16$, 2.0M (last) & 79/100 & 70.0 to 85.8\% \\
+\hline
+\rowcolor{PaleTeal}
+SuperMimic style, $H=16$, 1.7M (best) & 87/100 & 79.0 to 92.2\% \\
+\hline
+Best checkpoint, final curriculum range & 92/100 & 85.0 to 95.9\% \\
+\hline
+\end{tabularx}
+\end{table}
+
+\reportfigure[0.62]{figures/ci_500k.pdf}
+{Success after 500{,}000 steps with 95\% Wilson intervals. The intervals of the two short horizon
+runs do not overlap with those of PPO or the 32 step horizon.}
+{fig:ci500}
+
+\reportfigure{figures/success_ci.pdf}
+{Evaluation success during training with the 95\% interval of each evaluation shaded. The drops at
+0.7M, 1.1M and 1.8M steps for seed 0 fall far outside the neighbouring intervals, so they are real
+changes in the policy and not evaluation noise.}
+{fig:successci}
+
+\subsection{Tests between runs}
+
+To compare two runs I used Fisher's exact test on the two $2\times2$ tables of successes and
+failures. The test does not assume large samples, which matters when one run has zero successes.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Fisher's exact test (two sided) on evaluation success, $n=100$ per run.}
+\label{tab:fisher}
+\begin{tabularx}{\textwidth}{|L|>{\centering\arraybackslash}p{2.6cm}|>{\centering\arraybackslash}p{2.4cm}|}
+\hline
+\rowcolor{PaleBlue}
+\thd{Comparison} & \thd{Successes} & \thd{$p$ value} \\
+\hline
+$H=16$ against PPO (500k) & 15 vs 0 & $3.5\times10^{-5}$ \\
+\hline
+$H=16$ against $H=32$ (500k) & 15 vs 0 & $3.5\times10^{-5}$ \\
+\hline
+$H=16$ with critic against without critic (500k) & 15 vs 2 & $1.5\times10^{-3}$ \\
+\hline
+$H=16$ against $H=8$ (500k) & 15 vs 15 & 1.00 \\
+\hline
+No critic run, 400k against 500k & 11 vs 2 & 0.018 \\
+\hline
+$H=16$ run, 1.7M against 1.8M & 87 vs 19 & $3.1\times10^{-23}$ \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{notebox}[How I read these numbers]
+The pathwise learner beating PPO and the 32 step horizon is very unlikely to be an accident of the
+test episodes. The same holds for the effect of the critic at 500{,}000 steps. The two short
+horizons cannot be told apart. The collapse at 1.8M steps is a genuine change in behaviour.
+\end{notebox}
+
+\begin{limitbox}[What these statistics do not cover]
+\begin{itemize}
+  \item \textbf{Variation between training runs.} The intervals describe the 100 test episodes only.
+        They say nothing about how a different random seed would turn out, and Table~\ref{tab:seeds}
+        shows that this variation is large. With one or two seeds per setting I cannot estimate it.
+  \item \textbf{Selection.} The best checkpoint was chosen with these same test episodes. Its
+        interval is therefore optimistic. A fair estimate needs a second set of episodes that played
+        no part in the choice.
+  \item \textbf{Pairing.} All runs face the same 100 start states. A paired test such as McNemar's
+        would be more powerful but needs the result of every episode, which I did not save. Fisher's
+        test ignores the pairing and is therefore conservative here.
+  \item \textbf{Multiple comparisons.} The six tests are not corrected. The main comparison against
+        PPO would still pass a Bonferroni correction (threshold $0.05/6 \approx 0.008$). The 400k
+        against 500k drop in the no critic run would not.
+\end{itemize}
+\end{limitbox}
 
 % =====================================================================
 \section{Answers to the case study questions}
@@ -716,21 +878,26 @@ smooth enough. Physics also mattered: without table friction BPTT found the do n
 \small
 \caption{What the experiments show and what they do not.}
 \label{tab:claims}
-\begin{tabularx}{\textwidth}{LL}
-\toprule
+\begin{tabularx}{\textwidth}{|L|L|}
+\hline
+\rowcolor{PaleBlue}
 \thd{Observed in these experiments} & \thd{Not established by these experiments} \\
-\midrule
+\hline
 The pathwise learner beat PPO by a wide margin for the same number of environment steps. &
 That it is better in general or for the same compute. PPO used about seven times less wall clock time. \\
+\hline
 A 16 step horizon was stable where 32 steps was not. &
 A rule for choosing the horizon in other tasks. \\
+\hline
 Removing the critic hurt one run at 500{,}000 steps. &
 A consistent effect across seeds. \\
+\hline
 Both methods failed with a purely sparse reward. &
 That no exploration method could fix this. Ma et al.~\cite{esm} train from a sparse reward with a diffusion policy. \\
+\hline
 The best checkpoint solved 87\% of Push-T episodes. &
 That a typical run reaches 87\%. The second seed was clearly slower. \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -755,8 +922,6 @@ Not everything worked the first time. These problems shaped the final settings, 
   \item \textbf{Losing the best model.} The training script originally overwrote one checkpoint file
         at every evaluation. Given how much the results jump around, I changed it to keep the best
         checkpoint as well.
-  \item \textbf{A power cut} stopped the second seed at about 930{,}000 steps. The code cannot resume
-        a run because it does not save the replay buffer, so I report the seed as it stood.
 \end{itemize}
 
 % =====================================================================
@@ -788,6 +953,10 @@ that the ablations become measurements rather than single observations.
 \textbf{Make sparse rewards work.} Options include an exploration bonus from world model
 uncertainty, a stochastic policy as in Ma et al.~\cite{esm}, or starting the curriculum with a
 lower coverage threshold and raising it to 95\% over time.
+
+\textbf{A clean final test.} Evaluate the best checkpoint on episodes that played no part in
+choosing it (\texttt{evaluate.py --seed} with a new seed) and save the result of every episode so
+that paired tests become possible.
 
 \textbf{Check the critic.} Compare its predictions with Monte Carlo returns from the simulator, and
 compare a critic trained on imagined data with one trained on real data.

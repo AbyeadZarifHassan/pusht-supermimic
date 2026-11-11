@@ -20,10 +20,11 @@ from pusht_rl.env import AGENT_RADIUS, GOAL_POSE, t_polygon  # noqa: E402
 OUT = os.path.join(os.path.dirname(__file__), "figures")
 os.makedirs(OUT, exist_ok=True)
 
-INK, MID, LIGHT, FAINT = "#1f1f1f", "#6b6b6b", "#a8a8a8", "#e3e3e3"
+INK, MID, LIGHT, FAINT = "#183247", "#246A9B", "#9CADBD", "#E4ECF2"
+TEAL, AMBER, PALE = "#187F83", "#B77A24", "#EDF4FA"
 plt.rcParams.update({
-    "font.family": "serif", "font.size": 9, "axes.edgecolor": MID, "axes.labelcolor": INK,
-    "xtick.color": MID, "ytick.color": MID, "axes.spines.top": False, "axes.spines.right": False,
+    "font.family": "serif", "font.size": 9, "axes.edgecolor": LIGHT, "axes.labelcolor": INK,
+    "xtick.color": "#647181", "ytick.color": "#647181", "axes.spines.top": False, "axes.spines.right": False,
     "axes.grid": True, "grid.color": FAINT, "grid.linewidth": 0.6, "legend.frameon": False,
 })
 
@@ -47,7 +48,7 @@ SPARSE = np.array([[s * 100000, 0, 0.0, c] for s, c in zip(range(1, 11),
 
 
 def save(fig, name):
-    fig.savefig(os.path.join(OUT, name), bbox_inches="tight")
+    fig.savefig(os.path.join(OUT, name), bbox_inches="tight", dpi=300)
     plt.close(fig)
     print("wrote", name)
 
@@ -70,11 +71,11 @@ def fig_task():
             ax.add_patch(plt.Rectangle((256 - half, 256 - half), 2 * half, 2 * half, fill=False, ls=":", ec=MID, lw=0.8))
             pos = rng.uniform(256 - half, 256 + half, size=(3, 2))
         goal = t_polygon(*GOAL_POSE)
-        ax.add_patch(Polygon(np.array(goal.exterior.coords), closed=True, fc="none", ec=INK, lw=1.0, ls="--"))
+        ax.add_patch(Polygon(np.array(goal.exterior.coords), closed=True, fc="#DDEFE9", ec=TEAL, lw=1.2, ls="--"))
         for i, (x, y) in enumerate(pos):
             poly = t_polygon(x, y, rng.uniform(-np.pi, np.pi))
-            ax.add_patch(Polygon(np.array(poly.exterior.coords), closed=True, fc=LIGHT if i else MID, ec="none", alpha=0.9 if i == 0 else 0.45))
-        ax.add_patch(Circle((70, 440), AGENT_RADIUS, fc=INK))
+            ax.add_patch(Polygon(np.array(poly.exterior.coords), closed=True, fc=MID if i == 0 else LIGHT, ec="none", alpha=0.95 if i == 0 else 0.55))
+        ax.add_patch(Circle((70, 440), AGENT_RADIUS, fc=AMBER))
         ax.set_title(title, fontsize=9, color=INK)
     axes[0].text(70, 485, "pusher", ha="center", fontsize=7, color=MID)
     save(fig, "task.pdf")
@@ -88,7 +89,7 @@ def fig_compare():
     cov = [0.043, 0.052, 0.064, 0.054, 0.121, 0.362, 0.507, 0.554]
     y = np.arange(len(names))
     fig, ax = plt.subplots(1, 2, figsize=(7.0, 2.7), sharey=True)
-    shade = [LIGHT] * 4 + [MID] * 3 + [INK]
+    shade = [LIGHT] * 4 + [MID] * 3 + [TEAL]
     ax[0].barh(y, succ, color=shade, height=0.6)
     ax[1].barh(y, cov, color=shade, height=0.6)
     ax[0].set_yticks(y); ax[0].set_yticklabels(names)
@@ -107,16 +108,16 @@ def fig_compare():
 def fig_long():
     s = H16_2M[:, 0] / 1e6
     fig, ax = plt.subplots(1, 2, figsize=(7.0, 2.5))
-    ax[0].plot(s, H16_2M[:, 2] * 100, "-o", color=INK, ms=3, lw=1.2, label="Seed 0, 2M steps")
-    ax[0].plot(SEED1[:, 0] / 1e6, SEED1[:, 2] * 100, "-s", color=LIGHT, ms=3, lw=1.2, label="Seed 1, stopped at 0.93M")
+    ax[0].plot(s, H16_2M[:, 2] * 100, "-o", color=MID, ms=3, lw=1.3, label="Seed 0, 2M steps")
+    ax[0].plot(SEED1[:, 0] / 1e6, SEED1[:, 2] * 100, "-s", color=AMBER, ms=3, lw=1.2, label="Seed 1, shorter run")
     ax[0].set_ylabel("Evaluation success (%)"); ax[0].set_xlabel("Environment steps (millions)")
     ax[0].legend(fontsize=7, loc="upper left")
-    ax[1].plot(s, H16_2M[:, 3], "-o", color=INK, ms=3, lw=1.2)
-    ax[1].plot(SEED1[:, 0] / 1e6, SEED1[:, 3], "-s", color=LIGHT, ms=3, lw=1.2)
+    ax[1].plot(s, H16_2M[:, 3], "-o", color=MID, ms=3, lw=1.3)
+    ax[1].plot(SEED1[:, 0] / 1e6, SEED1[:, 3], "-s", color=AMBER, ms=3, lw=1.2)
     ax[1].set_ylabel("Final goal coverage"); ax[1].set_xlabel("Environment steps (millions)")
     tw = ax[1].twinx()
-    tw.step(s, H16_2M[:, 1], where="post", color=MID, lw=0.9, ls=":")
-    tw.set_ylabel("Curriculum stage (dotted)", color=MID); tw.set_ylim(0, 11); tw.grid(False)
+    tw.step(s, H16_2M[:, 1], where="post", color=TEAL, lw=1.0, ls=":")
+    tw.set_ylabel("Curriculum stage (dotted)", color=TEAL); tw.set_ylim(0, 11); tw.grid(False)
     tw.spines["right"].set_visible(True); tw.spines["top"].set_visible(False)
     for a in ax:
         a.set_xlim(0, 2.05)
@@ -126,9 +127,9 @@ def fig_long():
 # ---------------------------------------------------------------- 4. critic and sparse
 def fig_ablate():
     fig, ax = plt.subplots(figsize=(4.2, 2.4))
-    ax.plot(H16_2M[:5, 0] / 1e3, H16_2M[:5, 3], "-o", color=INK, ms=3, label="H=16 with critic")
-    ax.plot(NOCRITIC[:, 0] / 1e3, NOCRITIC[:, 3], "-s", color=MID, ms=3, label="H=16 without critic")
-    ax.plot(SPARSE[:5, 0] / 1e3, SPARSE[:5, 3], "-^", color=LIGHT, ms=3, label="H=16 sparse reward")
+    ax.plot(H16_2M[:5, 0] / 1e3, H16_2M[:5, 3], "-o", color=MID, ms=3, label="H=16 with critic")
+    ax.plot(NOCRITIC[:, 0] / 1e3, NOCRITIC[:, 3], "-s", color=AMBER, ms=3, label="H=16 without critic")
+    ax.plot(SPARSE[:5, 0] / 1e3, SPARSE[:5, 3], "-^", color=TEAL, ms=3, label="H=16 sparse reward")
     ax.axhline(0.043, color=LIGHT, lw=0.8, ls="--")
     ax.text(505, 0.055, "do nothing", fontsize=7, color=MID, ha="right")
     ax.set_xlabel("Environment steps (thousands)"); ax.set_ylabel("Final goal coverage")
@@ -142,7 +143,7 @@ def fig_frames():
     if not os.path.exists(gif):
         print("docs/best_model.gif not found, skipping rollout frames")
         return
-    from PIL import Image, ImageOps
+    from PIL import Image
     im = Image.open(gif)
     n = im.n_frames
     picks = np.linspace(0, n - 1, 6).astype(int)
@@ -151,15 +152,52 @@ def fig_frames():
         im.seek(int(k))
         f = im.convert("RGB")
         w = f.size[0] // 4  # first of the four side-by-side episodes
-        frames.append(ImageOps.grayscale(f.crop((0, 0, w, f.size[1]))))
+        frames.append(f.crop((0, 0, w, f.size[1])))
     fig, ax = plt.subplots(1, 6, figsize=(7.0, 1.4))
     for a, f, k in zip(ax, frames, picks):
-        a.imshow(f, cmap="gray"); a.set_xticks([]); a.set_yticks([]); a.grid(False)
+        a.imshow(f); a.set_xticks([]); a.set_yticks([]); a.grid(False)
         a.set_title(f"step {k}", fontsize=7, color=MID)
         for sp in a.spines.values():
             sp.set_visible(True); sp.set_color(LIGHT)
     save(fig, "rollout_frames.png")
 
 
+def wilson(k, n, z=1.959964):
+    p = k / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return c - h, c + h
+
+
+def fig_ci():
+    fig, ax = plt.subplots(figsize=(7.0, 2.6))
+    for data, col, lab, mk in [(H16_2M, MID, "Seed 0", "o"), (SEED1, AMBER, "Seed 1", "s")]:
+        s = data[:, 0] / 1e6
+        k = np.round(data[:, 2] * 100)
+        lo, hi = wilson(k, 100)
+        ax.fill_between(s, lo * 100, hi * 100, color=col, alpha=0.18, lw=0)
+        ax.plot(s, k, "-" + mk, color=col, ms=3, lw=1.2, label=lab + " (95% Wilson interval shaded)")
+    ax.set_xlabel("Environment steps (millions)"); ax.set_ylabel("Evaluation success (%)")
+    ax.set_xlim(0, 2.05); ax.set_ylim(0, 100)
+    ax.legend(fontsize=7, loc="upper left")
+    save(fig, "success_ci.pdf")
+
+
+def fig_ci_bars():
+    rows = [("PPO, dense", 0), ("SuperMimic, H=32", 0), ("SuperMimic, H=16, no critic", 2),
+            ("SuperMimic, H=8", 15), ("SuperMimic, H=16", 15)]
+    fig, ax = plt.subplots(figsize=(5.2, 2.2))
+    for i, (name, k) in enumerate(rows):
+        lo, hi = wilson(k, 100)
+        ax.errorbar(k, i, xerr=[[k - lo * 100], [hi * 100 - k]], fmt="o", color=TEAL if k >= 15 else MID,
+                    ecolor=LIGHT, elinewidth=2, capsize=3, ms=5)
+    ax.set_yticks(range(len(rows))); ax.set_yticklabels([r[0] for r in rows])
+    ax.set_xlabel("Evaluation success at 500k steps (%), 95% Wilson interval"); ax.set_xlim(-1, 30)
+    ax.grid(axis="y", visible=False)
+    save(fig, "ci_500k.pdf")
+
+
 if __name__ == "__main__":
+    fig_ci(); fig_ci_bars()
     fig_task(); fig_compare(); fig_long(); fig_ablate(); fig_frames()
