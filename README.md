@@ -13,6 +13,14 @@ SuperMimic was shown on humanoid motion tracking, where the reward is **dense** 
 reference motion at every step). Push-T is the opposite: a contact-rich manipulation
 task whose natural reward is **sparse** (1 only when the T covers 95% of the goal).
 
+<p align="center"><img src="docs/best_model.gif" width="900"><br>
+<em>Best SuperMimic policy (H = 16, 1.7M steps): blue = pusher, grey = T-block, green = goal.</em></p>
+
+**Headline result:** the best SuperMimic checkpoint solves **87%** of 100 unseen episodes from the
+original Push-T reset distribution (mean 100 steps) and **92%** at the final curriculum range.
+PPO with the same observation and action space stays at 0%. Pure sparse reward fails for both
+methods. See [Results](#results).
+
 ## What is implemented
 
 | Component | File | From |
@@ -77,45 +85,75 @@ same protocol as the ESM paper), `checkpoint.pt` and GIFs.
 Useful flags: `--horizon H`, `--no-critic`, `--no-curriculum`, `--damping 0.99` (table friction,
 see below), `--success-threshold 0.9`, `--policy-updates`, `--wm-updates`, `--n-envs`.
 
-## Preliminary results (small budget, CPU only)
+## Results
 
-These short sanity runs were done on a 2-core CPU, far below the ~4M steps the ESM paper uses.
-They check that the pipeline works; they do not compare final performance.
+All runs: dense reward, table friction (`--damping 0.99`), seed 0, i5-9400F CPU (SuperMimic) /
+RTX 4060 (PPO). Evaluation = 100 episodes from the **original Push-T reset** (block anywhere in
+[100, 400]², any angle), success = 95% coverage within 300 steps.
 
-Training metric: mean coverage of the goal at the end of training episodes (curriculum stage 0,
-block within ±30 px of the goal, random angle), averaged over the last 200 episodes, after **150k
-environment steps**.
+![learning curves](docs/results_2M.png)
 
-| Policy | Table friction | Final coverage | Training success |
+### Main comparison at 500k environment steps
+
+| Method | Eval success | Eval coverage | Wall-clock |
 |---|---|---|---|
-| Random actions | – | 0.165 | 0% |
-| **Do nothing** (zero action) | – | 0.237 | 0% |
-| PPO, dense reward | none (`--damping 0`) | 0.234 | 0.5% |
-| PPO, dense reward | `--damping 0.99` | 0.249 | 0% |
-| SuperMimic (BPTT), dense reward | none (`--damping 0`) | 0.217 | 0% |
-| **SuperMimic (BPTT), dense reward** | `--damping 0.99` | **0.374** (still rising) | **1.5%** |
+| Do nothing (zero action) | 0% | 0.04 | – |
+| PPO, sparse reward | 0% | 0.05 | 5 min |
+| PPO, dense reward | 0% | 0.06 | 5 min |
+| SuperMimic, H = 32 | 0% (2% at 200k) | 0.12 | 62 min |
+| SuperMimic, H = 16, **sparse reward** | 0% | 0.05 | 38 min |
+| SuperMimic, H = 16 | **15%** | **0.55** | 35 min |
+| SuperMimic, H = 16, seed 1 | 3% | 0.43 | 40 min |
+| SuperMimic, H = 16, **no critic** | 2% (11% at 400k) | 0.36 | 28 min |
+| SuperMimic, H = 8 | **15%** | 0.51 | 22 min |
 
-What this shows:
+### Long run: SuperMimic, H = 16, 2M steps (`sm_dense_H16_2M`)
 
-* Without table friction, both methods end up at the **"do nothing" level**. When we inspected the
-  BPTT policy, it had learned to avoid the block: with a block that keeps sliding, any push lowers
-  the pose score within the 32-step horizon, so not touching it is a local optimum of J.
-* With quasi-static friction, the pathwise gradient through the learned model starts to work: coverage
-  rises steadily past the do-nothing level and the first real 95%-coverage successes appear.
-  PPO with the same data budget has not moved yet. This matches the sample-efficiency claim
-  of the case study (pathwise < likelihood ratio in samples), though only at this tiny budget.
-* No run solves the task yet. The ESM paper needed ~4M steps with a diffusion policy, and PPO stayed
-  at 0% there. The sparse-reward runs and the full 2M-step comparison are left for a GPU
-  (`bash run_experiments.sh`). Run several seeds before drawing conclusions.
-* SuperMimic is ~5× slower per environment step than PPO on CPU, because it does 4 world-model
-  updates and 4 BPTT updates (256 × 32 imagined steps each) per 256 real steps. On a GPU most of
-  this cost goes away.
+| Steps | 0.5M | 1.0M | 1.2M | 1.5M | **1.7M** | 1.8M | 2.0M |
+|---|---|---|---|---|---|---|---|
+| Curriculum stage | 1 | 5 | 9 | 10 | 10 | 10 | 10 |
+| Eval success | 15% | 64% | 61% | 85% | **87%** | 19% | 79% |
+| Eval coverage | 0.55 | 0.81 | 0.83 | 0.88 | 0.89 | 0.50 | **0.93** |
+| Mean episode length | 275 | 182 | 170 | 105 | **100** | 264 | 115 |
 
-![preliminary curves](docs/preliminary_results.png)
+The curriculum finishes (stage 10, the full ±130 px range) at ~1.2M steps. The best checkpoint
+reaches **87% success on the full Push-T distribution** with ~100-step episodes. The first 500k steps
+are identical to `sm_dense_H16` (same seed), so training is deterministic.
 
-(`t_sm_dense_damp` = SuperMimic with friction; `t_utd4` = SuperMimic without friction; `t_ppo_*` = PPO.)
+### Seed variance (H = 16, dense)
 
-For this reason `--damping 0.99` is the **default**. Use `--damping 0` for the original Push-T physics.
+| Steps | 300k | 500k | 700k | 800k | 900k |
+|---|---|---|---|---|---|
+| Seed 0: success / coverage / stage | 1% / 0.37 / 0 | 15% / 0.55 / 1 | 0% / 0.49 / 2 | 14% / 0.67 / 3 | 23% / 0.58 / 4 |
+| Seed 1: success / coverage / stage | 3% / 0.36 / 0 | 3% / 0.43 / 1 | 11% / 0.61 / 3 | 2% / 0.40 / 3 | 0% / 0.26 / 4 |
+
+Seed 1 was cut off at ~930k steps by a power outage. Both seeds clearly learn: they advance the
+curriculum and beat PPO by a wide margin. Seed 1 is slower and noisier, so treat the 87% from seed 0
+as one good run, not as the expected result.
+
+### Findings
+
+1. **Pathwise (BPTT) vs likelihood ratio (PPO).** With the same data budget, PPO never moves past
+   the "do nothing" level (sparse: the critic loss stays ~1e-8 because no reward is ever seen, so
+   advantages are pure noise). SuperMimic learns to push the T in 500k steps and to solve 87% of
+   episodes in 1.7M.
+2. **Horizon is the key stability knob in contact-rich tasks.** With H = 32 the actor gradient norm
+   repeatedly explodes (100–3000) and learning collapses after 200k steps. With H = 16 or 8 it stays
+   mostly below 5. The gradient is a product of world-model Jacobians, and contact makes them large.
+   The critic covers the shorter horizon (SuperMimic Fig. 4 shows the same).
+3. **The critic matters for stability.** Without it (H = 16), training curves look similar at first,
+   but evaluation collapses from 11% to 2% between 400k and 500k.
+4. **Physics matters.** Without table friction (original Push-T, the block keeps sliding),
+   BPTT converges to "do not touch the block": every push lowers the score within the horizon.
+5. **Instability remains.** Even the best run has sudden collapses (0% at 700k, 10% at 1.1M, 19% at
+   1.8M) and recovers each time. Keep `checkpoint_best.pt` and run several seeds before drawing
+   conclusions. Every number here is from a single seed.
+6. **Pure sparse reward: SuperMimic fails just like PPO.** With `--reward sparse` (1M steps, H = 16)
+   there are 0% successes, coverage stays at the do-nothing level (0.05) and the curriculum never
+   leaves stage 0. Without any success, the success head learns "success never happens", so the
+   imagined reward is identically 0, ∂r/∂a = 0, and the critic only learns 0. Pathwise gradients need
+   *some* differentiable signal. Here it is the dense potential shaping. Even with dense shaping, the
+   calibrated success head stays at `imag_success_prob` ≈ 1e-3, so the success bonus contributes little.
 
 ## Discussion: the case-study questions on Push-T
 

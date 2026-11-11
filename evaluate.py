@@ -20,9 +20,11 @@ def main():
     p.add_argument("run")
     p.add_argument("--episodes", type=int, default=100)
     p.add_argument("--device", default="cpu")
+    p.add_argument("--ckpt", default="checkpoint_best.pt", help="checkpoint file inside the run folder")
     a = p.parse_args()
     args = json.load(open(os.path.join(a.run, "args.json")))
-    ckpt = torch.load(os.path.join(a.run, "checkpoint.pt"), map_location=a.device)
+    ckpt = torch.load(os.path.join(a.run, a.ckpt if os.path.exists(os.path.join(a.run, a.ckpt)) else "checkpoint.pt"),
+                      map_location=a.device, weights_only=False)
     if args["algo"] == "supermimic":
         agent = SuperMimicAgent(SMConfig(**ckpt["cfg"]), a.device)
         agent.load_state_dict(ckpt)

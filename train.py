@@ -53,6 +53,9 @@ def parse():
     p.add_argument("--buffer-size", type=float, default=1e6)
     p.add_argument("--warmup-steps", type=float, default=2e4)
     p.add_argument("--action-noise", type=float, default=0.3)
+    p.add_argument("--actor-lr", type=float, default=1e-4)
+    p.add_argument("--grad-clip", type=float, default=0.5, help="max actor gradient norm for BPTT")
+    p.add_argument("--threads", type=int, default=0, help="torch CPU threads (0 = torch default)")
     # ppo
     p.add_argument("--rollout-len", type=int, default=128)
     p.add_argument("--ppo-epochs", type=int, default=10)
@@ -77,6 +80,8 @@ class Logger:
 def main():
     args = parse()
     device = ("cuda" if torch.cuda.is_available() else "cpu") if args.device == "auto" else args.device
+    if args.threads > 0:
+        torch.set_num_threads(args.threads)
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     run = args.run or f"{args.algo}_{args.reward}_s{args.seed}"
@@ -94,6 +99,8 @@ def main():
     next_log, next_eval = args.log_every, args.eval_every
     obs_vel = not args.no_obs_velocity
     print(f"[{run}] device={device} algo={args.algo} reward={args.reward}")
+
+    best = {"score": -1.0}
 
     def periodic(extra, policy_fn, agent_state):
         nonlocal next_log, next_eval
@@ -121,10 +128,16 @@ def main():
             eval_logger.log(row)
             print("EVAL", row, flush=True)
             torch.save(agent_state(), os.path.join(out, "checkpoint.pt"))
+            score = res_full["success_rate"] + res_full["final_coverage"]  # success first, coverage breaks ties
+            if score > best["score"]:
+                best["score"] = score
+                torch.save(agent_state(), os.path.join(out, "checkpoint_best.pt"))
+                print(f"new best checkpoint (success={res_full['success_rate']:.2f}, coverage={res_full['final_coverage']:.3f})")
 
     if args.algo == "supermimic":
         cfg = SMConfig(reward=args.reward, horizon=args.horizon, wm_window=args.wm_window,
-                       use_critic=not args.no_critic, obs_velocity=obs_vel, action_noise=args.action_noise)
+                       use_critic=not args.no_critic, obs_velocity=obs_vel, action_noise=args.action_noise,
+                       actor_lr=args.actor_lr, grad_clip=args.grad_clip)
         agent = SuperMimicAgent(cfg, device)
         buf = ReplayBuffer(args.n_envs, int(args.buffer_size), args.seed)
         policy_fn = lambda s: agent.act(s, 0.0)

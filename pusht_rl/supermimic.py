@@ -30,12 +30,12 @@ class SMConfig:
     obs_velocity: bool = True
     hidden: int = 256
     wm_lr: float = 3e-4
-    actor_lr: float = 3e-4
+    actor_lr: float = 1e-4
     critic_lr: float = 3e-4
     wm_batch: int = 256
     policy_batch: int = 256
     critic_steps: int = 2
-    grad_clip: float = 1.0
+    grad_clip: float = 0.5
     action_noise: float = 0.3
 
 
